@@ -11,12 +11,12 @@ export function Register() {
     // Déclare l'état 'confirmPassword' pour la vérification du mot de passe.
     const [confirmPassword, setConfirmPassword] = useState('');
     // Déclare l'état 'speudo' (pseudo) et sa fonction de mise à jour 'setSpeudo'.
-    const [speudo, setSpeudo] = useState('');
+    const [pseudo, setPseudo] = useState('');
 
-    // Fonction qui sera exécutée lors de la soumission du formulaire.
-    const handleSubmit = (event) => {
-        // Appelle preventDefault() pour empêcher le comportement par défaut du formulaire,
-        // qui est de recharger la page. Ceci est crucial en React.
+    // Fonction exécutée lors de la soumission du formulaire.
+    // Utilisation de useCallback pour une meilleure performance si le composant est re-rendu.
+    const handleSubmit = useCallback((event) => {
+        // Empêche le rechargement de la page par défaut du formulaire.
         event.preventDefault();
 
         // Logique de validation : vérifie si les deux champs de mot de passe correspondent.
@@ -26,11 +26,18 @@ export function Register() {
         }
 
         const userData = {
-            email,
-            password,
-            speudo,
+            email, // la valeur à jour de l'email
+            password, // la valeur à jour du password
+            pseudo, // la valeur à jour du pseudo
 
         };
+
+// TODO:fetch
+
+    }, [email, password, confirmPassword, pseudo]); // Dépendances pour useCallback
+
+
+
 
         // Le 'return' principal du composant, qui définit le JSX (la structure HTML) à afficher.
         return (
@@ -45,7 +52,7 @@ export function Register() {
                         <input
                             type="text" // Changé de 'speudo' à 'text' pour la sémantique HTML
                             placeholder="Pseudo"
-                            value={speudo}
+                            value={pseudo}
                             onChange={(e) => setSpeudo(e.target.value)}
                         />
 
@@ -82,8 +89,7 @@ export function Register() {
                 </div>
             </div>
         );
-    }
+    
 }
 
-// Export par défaut du composant pour une importation facile ailleurs dans l'application.
-export default Register;
+
