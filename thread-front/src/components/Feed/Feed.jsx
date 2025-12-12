@@ -1,23 +1,35 @@
-import { useEffect, useState } from "react";
-import { request } from "../../services/httpClient.js";  // Bon chemin
-import Post from "../Post/Post.jsx";                      // Bon chemin
+import {useEffect, useState} from 'react';
+import {request} from '../../services/httpClient.js';
+import PostCard from '../PostCard/PostCard.jsx';
+import './Feed.css';
 
-export default function Feed({ currentUser }) {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+export default function Feed({currentUser}) {
+  const [posts, setPosts] = useState ([]);
 
-  useEffect(() => {
-    async function fetchPosts() {
+  const [loading, setLoading] = useState (false);
+  const [error, setError] = useState ('');
+
+  useEffect (() => {
+    async function fetchPosts () {
       try {
-        setError("");
-        setLoading(true);
-        const data = await request("/posts", { auth: false });
-        setPosts(data || []);
+        setError('');
+        setLoading (true);
+        const response = await fetch ('http://localhost:3000/posts', {
+          method: 'GET',
+        });
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Données des posts récupérées :', data);
+          setPosts (data.AllPostsAndComments || []);
+          setLoading(false);
+        } else {
+          setError ('Erreur lors du chargement des posts');
+          setLoading(false);
+        }
       } catch (err) {
-        setError(err.message || "Erreur lors du chargement du feed.");
+        console.log ('API non accessible, affichage des données fictives');
       } finally {
-        setLoading(false);
+        setLoading (false);
       }
     }
 
@@ -25,24 +37,25 @@ export default function Feed({ currentUser }) {
   }, []);
 
   if (loading) return <div className="feed-page"><p>Chargement...</p></div>;
-  if (error) return <div className="feed-page"><p className="feed-error">{error}</p></div>;
-  if (!posts || posts.length === 0) return <div className="feed-page"><p>Aucun post pour l'instant.</p></div>;
 
   return (
     <div className="feed-page">
       <h1 className="page-title">Feed</h1>
       {error && <p className="feed-error">{error}</p>}
 
-      <div className="posts-list">
-        {posts.map((post) => (
-          <Post
-            key={post.id}
-            post={post}
-            currentUser={currentUser}
-            onPostDeleted={(postId) => setPosts(prev => prev.filter(p => p.id !== postId))}
-          />
-        ))}
-      </div>
+      {posts.length === 0
+        ? <p>Aucun post pour l'instant.</p>
+        : <div className="posts-list">
+            {posts.map (post => (
+              <PostCard
+                key={post.id}
+                post={post}
+                currentUser={currentUser}
+                onPostDeleted={postId =>
+                  setPosts (prev => prev.filter (p => p.id !== postId))}
+              />
+            ))}
+          </div>}
     </div>
   );
 }
