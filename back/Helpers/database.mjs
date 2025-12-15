@@ -11,16 +11,15 @@ await createTable(sequelize);
 export async function loadSequelize() {
     try {
         const sequelize = new Sequelize(
-            process.env.DB_NAME,     
-            process.env.DB_USER,     
-            process.env.DB_PASSWORD, 
+            process.env.DB_NAME,
+            process.env.DB_USER,
+            process.env.DB_PASSWORD,
             {
                 dialect: "mysql",
-
-                host: process.env.DB_HOST || "localhost" 
+                host: process.env.DB_HOST || "localhost"
             }
         );
-        
+
         await sequelize.authenticate();
         console.log("Connexion à la BDD réussie avec succès !");
         return sequelize;
